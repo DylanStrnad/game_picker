@@ -1,34 +1,65 @@
-# import json
-# from sentence_transformers import SentenceTransformer
-# from sklearn.metrics.pairwise import cosine_similarity
-# model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-# with open("games.json", "r") as file:
-#     data = json.load(file)
+import json
 
-# cleaned_data = [item for item in data if item.get("game")]
+from scrapy.crawler import CrawlerProcess
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from spiders.infinite_scroll import InfinitePageSpider
 
-# game_descriptions = [
-#     f"Title: {g['game'].strip()}. Genres: {', '.join(g['genre'])}. Tags: {', '.join(g['tags'])}. Reviews: {g['reviews']}."
-#     for g in cleaned_data
-# ]
-# print(game_descriptions)
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-# game_embeddings = model.encode(game_descriptions)
-# print(game_embeddings)
+gameTags = {"singleplayer": 4182, "multiplayer": 3859, "indie": 492, "action": 19, "rpg": 122}
 
-# def recommend_games(user_input):
-#     input_embedding = model.encode([user_input])
-#     calc_similarity = cosine_similarity(input_embedding, game_embeddings)[0]
+user_input = input(
+    "what genre of game do you want to play? select from: [singleplayer, multiplayer, indie, action, or rpg]"
+)
+tag_id = gameTags.get(user_input)
 
-#     top_matches = calc_similarity.argsort()[::-1][:3]
-#     for idx in top_matches:
-#         game = cleaned_data[idx]
-#         score = calc_similarity[idx]
-#         print(f"• {game['game'].strip()} (Match Score: {score:.2f})")
-#         print(f"  Genres: {', '.join(game['genre'])}")
-#         print(f"  Reviews: {game['reviews']}\n")
+process = CrawlerProcess(
+    settings={
+        "FEEDS": {
+            "games.json": {
+                "format": "json",
+                "overwrite": True,
+            },
+        },
+    }
+)
+process.crawl(InfinitePageSpider, tag_id=tag_id)
+process.start()
 
-# # Example Usage
-# if __name__ == "__main__":
-#     user_input = input("what kind of game do you want to play? ")
-#     recommend_games(user_input)
+with open("games.json") as file:
+    data = json.load(file)
+
+cleaned_data = [item for item in data if item.get("game")]
+
+game_descriptions = [
+    f"Title: {g['game'].strip()}. Genres: {', '.join(g['genre'])}. Tags: {', '.join(g['tags'])}. Reviews: {g['reviews']}."
+    for g in cleaned_data
+]
+print(game_descriptions)
+
+game_embeddings = model.encode(game_descriptions)
+print(game_embeddings)
+
+
+def recommend_games(user_input):
+    input_embedding = model.encode([user_input])
+    calc_similarity = cosine_similarity(input_embedding, game_embeddings)[0]
+
+    top_matches = calc_similarity.argsort()[::-1][:3]
+    for idx in top_matches:
+        game = cleaned_data[idx]
+        score = calc_similarity[idx]
+        # print(f"• {game['game'].strip()} (Match Score: {score:.2f})")
+        print(f"  Genres: {', '.join(game['genre'])}")
+        print(f"  Genres: {', '.join(game['tags'])}")
+        print(f"  Reviews: {game['reviews']}\n")
+
+
+# Example Usage
+if __name__ == "__main__":
+    # map user input to a dict value
+    # use this value to change the link of spider
+    # have spider scrape link
+    user_input = input("describe the game your looking for.")
+    recommend_games(user_input)
