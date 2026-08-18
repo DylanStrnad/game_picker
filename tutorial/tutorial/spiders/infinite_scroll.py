@@ -27,8 +27,9 @@ class InfinitePageSpider(CrawlSpider):
     }
     print("custom_settings")
 
-    def __init__(self, tag_id="", **kwargs):
+    def __init__(self, tag_id="", scrape_amount=50, **kwargs):
         self.start_urls = [f"https://store.steampowered.com/search/?hwtype=0&tags={tag_id}"]
+        self.scrape_amount = scrape_amount
         super().__init__(**kwargs)
 
     async def start(self):
@@ -52,19 +53,22 @@ class InfinitePageSpider(CrawlSpider):
 
         await page.wait_for_timeout(5000)
         try:
-            last_position = await page.evaluate("window.scrollY")
+            # last_position = await page.evaluate("window.scrollY")
 
             while True:
                 # scroll by 700 while not at the bottom
                 await page.evaluate("window.scrollBy(0, 1000)")
                 # await page.wait_for_timeout(750) # wait for 750ms for the request to complete
                 current_position = await page.evaluate("window.scrollY")
+                content = await page.content()
+                selector = Selector(text=content)
+                matches = selector.css("a.search_result_row")
 
-                if current_position >= 10000:
+                if len(matches) >= self.scrape_amount:
                     print("fetch the top results.")
                     break
 
-                last_position = current_position
+                # last_position = current_position
                 # break #temporary
 
         except Exception as error:
