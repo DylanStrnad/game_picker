@@ -47,29 +47,21 @@ class InfinitePageSpider(CrawlSpider):
         self,
         response,
     ):
-        print("parse")
+        # print("parse")
         page = response.meta["playwright_page"]
         page.set_default_timeout(10000)
-
-        await page.wait_for_timeout(5000)
         try:
-            # last_position = await page.evaluate("window.scrollY")
-
+            print("Fetching Results...")
             while True:
-                # scroll by 700 while not at the bottom
+                # scroll by 1000
                 await page.evaluate("window.scrollBy(0, 1000)")
-                # await page.wait_for_timeout(750) # wait for 750ms for the request to complete
                 current_position = await page.evaluate("window.scrollY")
                 content = await page.content()
                 selector = Selector(text=content)
                 matches = selector.css("a.search_result_row")
 
                 if len(matches) >= self.scrape_amount:
-                    print("fetch the top results.")
                     break
-
-                # last_position = current_position
-                # break #temporary
 
         except Exception as error:
             print(f"Error: {error}")
@@ -84,21 +76,19 @@ class InfinitePageSpider(CrawlSpider):
         matches = selector.css("a.search_result_row")
         print("matches:", len(matches))
 
+        print("yielding request...")
         for request in self.parse_link(selector):
-            print("yielding request")
             yield request
 
     def parse_link(self, selector):
-        print("parse_link")
+        # print("parse_link")
         matches = selector.css("a.search_result_row")
-        print("matches:", len(matches))
         for game in selector.css("a.search_result_row"):
             url = game.css("::attr(href)").get()
             yield scrapy.Request(url, callback=self.parse_game)
-        print("done")
 
     def parse_game(self, response):
-        print("parse game")
+        # print("parse game")
         name = response.xpath(
             '//div[@id="genresAndManufacturer"]/b[contains(text(), "Title:")]/following-sibling::text()[1]'
         ).get()
@@ -106,6 +96,4 @@ class InfinitePageSpider(CrawlSpider):
         tags = response.css("div.glance_tags a.app_tag::text").getall()
         tags = [tag.strip() for tag in tags]
         reviews = response.css("span.game_review_summary.positive::text").get()
-        # print(reviews)
         yield {"game": name, "genre": genre, "tags": tags, "reviews": reviews}
-        # print("parse_game")
