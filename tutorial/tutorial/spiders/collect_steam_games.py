@@ -2,6 +2,10 @@ import scrapy
 from scrapy.selector import Selector
 from scrapy.spiders import CrawlSpider
 
+review_scores_index = {
+    "Overwhelmingly Negative": 0, "Very Negative": 1, "Negative": 2, "Mostly Negative": 3, "Mixed": 4, "Mostly Positive": 5, "Positive": 6, "Very Positive": 7, "Overwhelmingly Positive": 8
+}
+
 
 class InfinitePageSpider(CrawlSpider):
     """
@@ -27,9 +31,10 @@ class InfinitePageSpider(CrawlSpider):
     }
     print("custom_settings")
 
-    def __init__(self, tag_id="", scrape_amount=50, **kwargs):
+    def __init__(self, tag_id="", scrape_amount=50, review_score="any", **kwargs):
         self.start_urls = [f"https://store.steampowered.com/search/?hwtype=0&tags={tag_id}"]
         self.scrape_amount = scrape_amount
+        self.review_score = review_score
         super().__init__(**kwargs)
 
     async def start(self):
@@ -82,7 +87,6 @@ class InfinitePageSpider(CrawlSpider):
 
     def parse_link(self, selector):
         # print("parse_link")
-        matches = selector.css("a.search_result_row")
         for game in selector.css("a.search_result_row"):
             url = game.css("::attr(href)").get()
             yield scrapy.Request(url, callback=self.parse_game)
@@ -96,4 +100,7 @@ class InfinitePageSpider(CrawlSpider):
         tags = response.css("div.glance_tags a.app_tag::text").getall()
         tags = [tag.strip() for tag in tags]
         reviews = response.css("span.game_review_summary.positive::text").get()
-        yield {"game": name, "genre": genre, "tags": tags, "reviews": reviews}
+        if reviews is None:
+            return # skip games with no reviews
+        if review_scores_index[reviews] >= review_scores_index[self.review_score]:
+            yield {"game": name, "genre": genre, "tags": tags, "reviews": reviews}
