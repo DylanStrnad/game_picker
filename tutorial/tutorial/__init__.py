@@ -10,21 +10,50 @@ model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 with open("games_tags.json") as file:
     tag_data = json.load(file)
 
+REVIEW_SCORES_INDEX = {
+    "Overwhelmingly Negative": 0, "Very Negative": 1, "Negative": 2, "Mostly Negative": 3, "Mixed": 4, "Mostly Positive": 5, "Positive": 6, "Very Positive": 7, "Overwhelmingly Positive": 8
+}
+
+def get_user_input():
+    tag_id = None
+    while tag_id is None:
+        genre = input(
+            "what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]\n" \
+            "to show list of tags - enter: list\n"
+        )
+        if genre == "list":
+            #print tags
+            print(list(tag_data[0]["tags"].keys()))
+        else:
+            try:
+                tag_id = tag_data[0]["tags"][genre]
+            except KeyError:
+                print("Unknown steam tag. Try again")
+        
+    scrape_amount = None
+    while scrape_amount is None:
+        scrape_amount_input = input(
+            "how many games to scrape? (More will take longer, but provide more accurate results)"
+        )
+        try:
+            scrape_amount = int(scrape_amount_input)
+        except ValueError:
+            print("invalid number. Try again")
+
+    review_score = None
+    while review_score is None:
+        review_score_input = input("minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]").title()
+        try: 
+            REVIEW_SCORES_INDEX[review_score_input]
+        except KeyError:
+            print("invalid review score. Try again")
+            continue
+
+        review_score = review_score_input
+    return tag_id, scrape_amount, review_score
+
 def crawl_page():
-    genre = input(
-        "what genre of game do you want to play? select from any steam game tag [indie, multiplayer, singleplayer, action, adeventure, rpg, etc]"
-    )
-
-    #get the tagID
-    tag_id = tag_data[0]["tags"][genre]
-
-    scrape_amount = input(
-        "how many games to scrape? (More will take longer, but provide more accurate results)"
-    )
-    scrape_amount = int(scrape_amount)
-
-    review_score = input("minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]")
-
+    tag_id, scrape_amount, review_score = get_user_input()
     # create web crawler
     process = CrawlerProcess(
         settings={
@@ -70,8 +99,15 @@ def recommend_games(user_input, num_of_results, game_embeddings, cleaned_data):
         print(f"  Reviews: {game['reviews']}\n")
 
 if __name__ == "__main__":
-    crawl_page()
-    embedded_data, cleaned_data = clean_data_and_embed()
-    user_input = input("describe the game your looking for:\n")
-    num_of_results = input("How many games to show in results:\n")
-    recommend_games(user_input, int(num_of_results), embedded_data, cleaned_data)
+    while True:
+        crawl_page()
+        embedded_data, cleaned_data = clean_data_and_embed()
+        user_input = input("describe the game your looking for:\n")
+        num_of_results = input("How many games to show in results:\n")
+        recommend_games(user_input, int(num_of_results), embedded_data, cleaned_data)
+        user_input = input("Do you want to try again? [Y/N]").capitalize()
+        try_again = True if user_input == "Y" else False
+        if not try_again:
+            break
+
+
