@@ -1,13 +1,11 @@
 import json
 
+from flask import Flask, render_template, request
+from markupsafe import escape
 from scrapy.crawler import CrawlerProcess
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from spiders.collect_steam_games import InfinitePageSpider
-
-from flask import Flask, render_template
-from flask import request
-from markupsafe import escape
 
 app = Flask(__name__)
 
@@ -17,8 +15,17 @@ with open("games_tags.json") as file:
     tag_data = json.load(file)
 
 REVIEW_SCORES_INDEX = {
-    "Overwhelmingly Negative": 0, "Very Negative": 1, "Negative": 2, "Mostly Negative": 3, "Mixed": 4, "Mostly Positive": 5, "Positive": 6, "Very Positive": 7, "Overwhelmingly Positive": 8
+    "Overwhelmingly Negative": 0,
+    "Very Negative": 1,
+    "Negative": 2,
+    "Mostly Negative": 3,
+    "Mixed": 4,
+    "Mostly Positive": 5,
+    "Positive": 6,
+    "Very Positive": 7,
+    "Overwhelmingly Positive": 8,
 }
+
 
 def crawl_page(genre, scrape_amount, review_score):
     print("crawl page")
@@ -39,6 +46,7 @@ def crawl_page(genre, scrape_amount, review_score):
     process.start()
     print("Crawl finished")
 
+
 def clean_data_and_embed():
     with open("games.json") as file:
         data = json.load(file)
@@ -53,34 +61,35 @@ def clean_data_and_embed():
     game_embeddings = model.encode(game_descriptions)
     return game_embeddings, cleaned_data
 
-@app.route("/",methods=["GET","POST"])
+
+@app.route("/", methods=["GET", "POST"])
 def home():
     print("home")
     if request.method == "POST":
         genre = request.form.get("genre")
         scrape_amount = request.form.get("scrape_amount")
         review_score = request.form.get("review_score")
-        #game_description = request.form.get("game_description")
+        # game_description = request.form.get("game_description")
         print("crawler")
         crawl_page(genre, scrape_amount, review_score)
         clean_data_and_embed()
-    return render_template('index.html')
+    return render_template("index.html")
     return f"Hello, {escape(name)}!"
     tag_id = None
     while tag_id is None:
         genre = input(
-            "what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]\n" \
+            "what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]\n"
             "to show list of tags - enter: list\n"
         )
         if genre == "list":
-            #print tags
+            # print tags
             print(list(tag_data[0]["tags"].keys()))
         else:
             try:
                 tag_id = tag_data[0]["tags"][genre]
             except KeyError:
                 print("Unknown steam tag. Try again")
-        
+
     scrape_amount = None
     while scrape_amount is None:
         scrape_amount_input = input(
@@ -93,8 +102,10 @@ def home():
 
     review_score = None
     while review_score is None:
-        review_score_input = input("minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]").title()
-        try: 
+        review_score_input = input(
+            "minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]"
+        ).title()
+        try:
             REVIEW_SCORES_INDEX[review_score_input]
         except KeyError:
             print("invalid review score. Try again")
@@ -104,18 +115,17 @@ def home():
     return tag_id, scrape_amount, review_score
 
 
-@app.route("/results.html",methods=["GET","POST"])
+@app.route("/results.html", methods=["GET", "POST"])
 def results():
-    return render_template('results.html')
+    return render_template("results.html")
 
 
-
-@app.route("/results.html",methods=["GET","POST"])
+@app.route("/results.html", methods=["GET", "POST"])
 def recommend_games(game_description, scrape_amount, game_embeddings, cleaned_data):
     input_embedding = model.encode([game_description])
     calc_similarity = cosine_similarity(input_embedding, game_embeddings)[0]
 
-    #fetches the top results
+    # fetches the top results
     top_matches = calc_similarity.argsort()[::-1][:scrape_amount]
     for idx in top_matches:
         game = cleaned_data[idx]
@@ -124,6 +134,7 @@ def recommend_games(game_description, scrape_amount, game_embeddings, cleaned_da
         print(f"  Genres: {', '.join(game['genre'])}")
         print(f"  tags: {', '.join(game['tags'])}")
         print(f"  Reviews: {game['reviews']}\n")
+
 
 # if __name__ == "__main__":
 #     while True:
@@ -136,5 +147,3 @@ def recommend_games(game_description, scrape_amount, game_embeddings, cleaned_da
 #         try_again = True if user_input == "Y" else False
 #         if not try_again:
 #             break
-
-
