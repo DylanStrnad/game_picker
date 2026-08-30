@@ -1,1 +1,23 @@
-hello
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Picker</title>
+</head>
+<body>
+    <h1> Search Results </h1>
+    <a href="index.html">Try Again</a>
+    {% if results %}
+        {% for game in results %}
+            <p>Title: {{game.game}}</p>
+            <p>Match Score: {{game.match_score}}</p>
+            <p>Genres: {{game.genres}}</p>
+            <p>Tags: {{game.tags}}</p>
+            <p>Review Score: {{game.review}}</p>
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>No results found</p>
+    {% endif %}
+    
+</body>
+</html>

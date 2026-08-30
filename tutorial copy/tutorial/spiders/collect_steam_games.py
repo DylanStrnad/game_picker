@@ -31,10 +31,12 @@ class InfinitePageSpider(CrawlSpider):
     }
     print("custom_settings")
 
-    def __init__(self, tag_id="", scrape_amount=50, review_score="any", **kwargs):
+    def __init__(self, tag_id="", scrape_amount=50, review_score='Mixed', **kwargs):
         self.start_urls = [f"https://store.steampowered.com/search/?hwtype=0&tags={tag_id}"]
         self.scrape_amount = scrape_amount
         self.review_score = review_score
+        print("review_score: ")
+        print(self.review_score)
         super().__init__(**kwargs)
 
     async def start(self):

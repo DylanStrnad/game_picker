@@ -61,80 +61,41 @@ def clean_data_and_embed():
     game_embeddings = model.encode(game_descriptions)
     return game_embeddings, cleaned_data
 
+def recommend_games(game_description, number_of_results, game_embeddings, cleaned_data):
+    input_embedding = model.encode([game_description])
+    calc_similarity = cosine_similarity(input_embedding, game_embeddings)[0]
+    print(number_of_results)
+    # fetches the top results
+    top_matches = calc_similarity.argsort()[::-1][:number_of_results]
+    results = []
+    for idx in top_matches:
+        game = cleaned_data[idx]
+        score = calc_similarity[idx]
+        results.append({
+            'game': game['game'].strip(),
+            'match_score': f"{score:.2f}",
+            'genres':(game['genre']),
+            'tags': (game['tags']),
+            'review': game['reviews']
+        }
+        )
+    return results
 
 @app.route("/", methods=["GET", "POST"])
+@app.route("/result.html", methods=["GET", "POST"])
 def home():
     print("home")
     if request.method == "POST":
         genre = request.form.get("genre")
         scrape_amount = request.form.get("scrape_amount")
-        review_score = request.form.get("review_score")
-        # game_description = request.form.get("game_description")
-        print("crawler")
+        review_score = request.form.get("review_score").strip()
+        game_description = request.form.get("game_description")
+        number_of_results = int(request.form.get("number_of_results"))
         crawl_page(genre, scrape_amount, review_score)
-        clean_data_and_embed()
+        game_embeddings, cleaned_data = clean_data_and_embed()
+        results = recommend_games(game_description, number_of_results, game_embeddings, cleaned_data)
+        return render_template("results.html", results=results)
     return render_template("index.html")
-    return f"Hello, {escape(name)}!"
-    tag_id = None
-    while tag_id is None:
-        genre = input(
-            "what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]\n"
-            "to show list of tags - enter: list\n"
-        )
-        if genre == "list":
-            # print tags
-            print(list(tag_data[0]["tags"].keys()))
-        else:
-            try:
-                tag_id = tag_data[0]["tags"][genre]
-            except KeyError:
-                print("Unknown steam tag. Try again")
-
-    scrape_amount = None
-    while scrape_amount is None:
-        scrape_amount_input = input(
-            "how many games to scrape? (More will take longer, but provide more accurate results)"
-        )
-        try:
-            scrape_amount = int(scrape_amount_input)
-        except ValueError:
-            print("invalid number. Try again")
-
-    review_score = None
-    while review_score is None:
-        review_score_input = input(
-            "minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]"
-        ).title()
-        try:
-            REVIEW_SCORES_INDEX[review_score_input]
-        except KeyError:
-            print("invalid review score. Try again")
-            continue
-
-        review_score = review_score_input
-    return tag_id, scrape_amount, review_score
-
-
-@app.route("/results.html", methods=["GET", "POST"])
-def results():
-    return render_template("results.html")
-
-
-@app.route("/results.html", methods=["GET", "POST"])
-def recommend_games(game_description, scrape_amount, game_embeddings, cleaned_data):
-    input_embedding = model.encode([game_description])
-    calc_similarity = cosine_similarity(input_embedding, game_embeddings)[0]
-
-    # fetches the top results
-    top_matches = calc_similarity.argsort()[::-1][:scrape_amount]
-    for idx in top_matches:
-        game = cleaned_data[idx]
-        score = calc_similarity[idx]
-        print(f"• {game['game'].strip()} (Match Score: {score:.2f})")
-        print(f"  Genres: {', '.join(game['genre'])}")
-        print(f"  tags: {', '.join(game['tags'])}")
-        print(f"  Reviews: {game['reviews']}\n")
-
 
 # if __name__ == "__main__":
 #     while True:
