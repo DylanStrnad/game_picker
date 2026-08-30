@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Picker</title>
+</head>
+<body>
+    <form action="/" method="post">
+        <div>
+            <h1>Use this site to recommend a steam game!</h1>
+            <p>*please fill all fields</p>
+        </div>
+        <div>
+            <p> what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]
+                <a href="https://store.steampowered.com/tag/browse/#global_492">check out popular tags</a>
+            </p>
+            <input id="genre">
+        </div>
+        <div>
+            <p> how many games do you want to scrape? (More will take longer, but provide more accurate results) </p>
+            <input type="number" id="scrape_amount">
+        </div>
+        <div>
+            <p> what is the minimum review score for game? [very negative, negative, mixed, postive, very positive, overwhelmingly positive] </p>
+            <input id="review_score">
+        </div>
+        <div>
+            <p>briefly describe the game your looking for (style of game, vibe, etc)</p>
+            <input id="game_description">
+        </div>
+         <input type="submit" value="Submit">
+    </form>
+    
+</body>
+</html>

@@ -18,7 +18,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "scikit-learn>=1.7.2",
     "scrapy>=2.17.0",
+    "sentence-transformers>=6.0.0",
 ]
 
 [project.urls]
