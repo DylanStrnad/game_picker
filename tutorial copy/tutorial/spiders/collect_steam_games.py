@@ -34,9 +34,8 @@ class InfinitePageSpider(CrawlSpider):
     def __init__(self, tag_id="", scrape_amount=50, review_score='Mixed', **kwargs):
         self.start_urls = [f"https://store.steampowered.com/search/?hwtype=0&tags={tag_id}"]
         self.scrape_amount = scrape_amount
+        # print("scrape_amount: ", scrape_amount)
         self.review_score = review_score
-        print("review_score: ")
-        print(self.review_score)
         super().__init__(**kwargs)
 
     async def start(self):
@@ -67,7 +66,8 @@ class InfinitePageSpider(CrawlSpider):
                 selector = Selector(text=content)
                 matches = selector.css("a.search_result_row")
 
-                if len(matches) >= self.scrape_amount:
+                if int(len(matches)) >= int(self.scrape_amount):
+                    print("scrape_amount: ", self.scrape_amount)
                     break
 
         except Exception as error:

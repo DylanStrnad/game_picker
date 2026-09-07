@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1> Search Results </h1>
-    <a href="index.html">Try Again</a>
+    <a href="/">Try Again</a>
     {% if results %}
         {% for game in results %}
             <p>Title: {{game.game}}</p>
@@ -18,6 +18,6 @@
     {% else %}
         <p>No results found</p>
     {% endif %}
-    
+
 </body>
 </html>
