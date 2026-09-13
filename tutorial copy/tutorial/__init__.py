@@ -91,6 +91,7 @@ def recommend_games(game_description, number_of_results, game_embeddings, cleane
             "genres": (game["genre"]),
             "tags": (game["tags"]),
             "review": game["reviews"],
+            "image": game["image"],
         })
     return results
 
@@ -110,7 +111,9 @@ def home():
         game_embeddings, cleaned_data = clean_data_and_embed()
         results = recommend_games(game_description, number_of_results, game_embeddings, cleaned_data)
         return render_template("results.html", results=results)
-    return render_template("index.html")
+    #return render_template("index.html")
+    return render_template("results.html")
+
 
 #returns json to genre_dropdown.js
 @app.route("/games_tags.json", methods=["GET", "POST"])

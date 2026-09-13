@@ -1,9 +1,9 @@
 .game-picker-gradient {
-  background-color: #171D25
+  background-color: #171D25;
 }
 
 .title{
-    color: #C5C3C0
+    color: #C5C3C0;
 }
 
 .background{
@@ -11,11 +11,16 @@
 }
 
 .text-box{
-    color:white
+    color:white;
+    background-image: linear-gradient(to right, #24425F, #1A2B40);
+    border: 2px solid grey;
+    max-width: 50em;
+    height: fit-content;
+    margin: 0 auto;
 }
 
 .text-box-container{
-    margin-bottom: 2em;
+    margin-bottom: 3em;
     text-align: center;
     justify-content: center;
 }
@@ -23,4 +28,72 @@
 .submit{
     display: block;
     margin: 0 auto;
+}
+
+select {
+    background-image: linear-gradient(to right, #364452, #34404E);
+    color: white;
+}
+
+option {
+  background-color: #222 !important;
+  color: #fff !important;
+}
+
+input {
+    background-image: linear-gradient(to right, #364452, #34404E);
+    color: #fff;
+}
+
+/* .game-container{
+    margin: 0 auto;
+    color: white;
+    text-align: center;
+    justify-content: left;
+    border: 2px solid grey;
+    max-width: 50em;
+    height: fit-content;
+    background-image: linear-gradient(to right, #24425F, #1A2B40);
+} */
+
+.game-container {
+    color: white;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    border: 2px solid grey;
+    max-width: 100em;
+    height: fit-content;
+    background-image: linear-gradient(to right, #24425F, #1A2B40);
+    gap: 1em;
+}
+
+.game-container img {
+  width: 200px;          /* or whatever size you want */
+  height: 100%;
+}
+
+.game-container p{
+    justify-content: center;
+}
+
+.recommendations-header{
+    margin: 0 auto;
+    color: white;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.try-again-button{
+    display: block;
+    margin: 0 auto;
+    width: fit-content;
+}
+
+.center-paragraph{
+    margin: 0 auto;
+    color: white;
+    text-align: center;
+    justify-content: center;
 }

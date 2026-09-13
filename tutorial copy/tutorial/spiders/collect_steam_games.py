@@ -102,7 +102,8 @@ class InfinitePageSpider(CrawlSpider):
         tags = response.css("div.glance_tags a.app_tag::text").getall()
         tags = [tag.strip() for tag in tags]
         reviews = response.css("span.game_review_summary.positive::text").get()
+        image = response.css("img.game_header_image_full::attr(src)").get()
         if reviews is None:
             return # skip games with no reviews
         if review_scores_index[reviews] >= review_scores_index[self.review_score]:
-            yield {"game": name, "genre": genre, "tags": tags, "reviews": reviews}
+            yield {"game": name, "genre": genre, "tags": tags, "reviews": reviews, "image": image}
