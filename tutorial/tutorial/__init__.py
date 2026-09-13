@@ -11,25 +11,34 @@ with open("games_tags.json") as file:
     tag_data = json.load(file)
 
 REVIEW_SCORES_INDEX = {
-    "Overwhelmingly Negative": 0, "Very Negative": 1, "Negative": 2, "Mostly Negative": 3, "Mixed": 4, "Mostly Positive": 5, "Positive": 6, "Very Positive": 7, "Overwhelmingly Positive": 8
+    "Overwhelmingly Negative": 0,
+    "Very Negative": 1,
+    "Negative": 2,
+    "Mostly Negative": 3,
+    "Mixed": 4,
+    "Mostly Positive": 5,
+    "Positive": 6,
+    "Very Positive": 7,
+    "Overwhelmingly Positive": 8,
 }
+
 
 def get_user_input():
     tag_id = None
     while tag_id is None:
         genre = input(
-            "what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]\n" \
+            "what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]\n"
             "to show list of tags - enter: list\n"
         )
         if genre == "list":
-            #print tags
+            # print tags
             print(list(tag_data[0]["tags"].keys()))
         else:
             try:
                 tag_id = tag_data[0]["tags"][genre]
             except KeyError:
                 print("Unknown steam tag. Try again")
-        
+
     scrape_amount = None
     while scrape_amount is None:
         scrape_amount_input = input(
@@ -42,8 +51,10 @@ def get_user_input():
 
     review_score = None
     while review_score is None:
-        review_score_input = input("minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]").title()
-        try: 
+        review_score_input = input(
+            "minimum review score for game [very negative, negative, mixed, postive, very positive, overwhelmingly positive]"
+        ).title()
+        try:
             REVIEW_SCORES_INDEX[review_score_input]
         except KeyError:
             print("invalid review score. Try again")
@@ -51,6 +62,7 @@ def get_user_input():
 
         review_score = review_score_input
     return tag_id, scrape_amount, review_score
+
 
 def crawl_page():
     tag_id, scrape_amount, review_score = get_user_input()
@@ -68,6 +80,7 @@ def crawl_page():
     # pass user defined arguments
     process.crawl(InfinitePageSpider, tag_id=tag_id, review_score=review_score, scrape_amount=scrape_amount)
     process.start()
+
 
 def clean_data_and_embed():
     with open("games.json") as file:
@@ -88,7 +101,7 @@ def recommend_games(user_input, num_of_results, game_embeddings, cleaned_data):
     input_embedding = model.encode([user_input])
     calc_similarity = cosine_similarity(input_embedding, game_embeddings)[0]
 
-    #fetches the top results
+    # fetches the top results
     top_matches = calc_similarity.argsort()[::-1][:num_of_results]
     for idx in top_matches:
         game = cleaned_data[idx]
@@ -97,6 +110,7 @@ def recommend_games(user_input, num_of_results, game_embeddings, cleaned_data):
         print(f"  Genres: {', '.join(game['genre'])}")
         print(f"  tags: {', '.join(game['tags'])}")
         print(f"  Reviews: {game['reviews']}\n")
+
 
 if __name__ == "__main__":
     while True:
@@ -109,5 +123,3 @@ if __name__ == "__main__":
         try_again = True if user_input == "Y" else False
         if not try_again:
             break
-
-

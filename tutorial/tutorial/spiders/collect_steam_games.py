@@ -3,7 +3,15 @@ from scrapy.selector import Selector
 from scrapy.spiders import CrawlSpider
 
 review_scores_index = {
-    "Overwhelmingly Negative": 0, "Very Negative": 1, "Negative": 2, "Mostly Negative": 3, "Mixed": 4, "Mostly Positive": 5, "Positive": 6, "Very Positive": 7, "Overwhelmingly Positive": 8
+    "Overwhelmingly Negative": 0,
+    "Very Negative": 1,
+    "Negative": 2,
+    "Mostly Negative": 3,
+    "Mixed": 4,
+    "Mostly Positive": 5,
+    "Positive": 6,
+    "Very Positive": 7,
+    "Overwhelmingly Positive": 8,
 }
 
 
@@ -101,6 +109,6 @@ class InfinitePageSpider(CrawlSpider):
         tags = [tag.strip() for tag in tags]
         reviews = response.css("span.game_review_summary.positive::text").get()
         if reviews is None:
-            return # skip games with no reviews
+            return  # skip games with no reviews
         if review_scores_index[reviews] >= review_scores_index[self.review_score]:
             yield {"game": name, "genre": genre, "tags": tags, "reviews": reviews}
