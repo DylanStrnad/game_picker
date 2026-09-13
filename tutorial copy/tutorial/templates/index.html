@@ -2,59 +2,63 @@
 <html>
 <head>
     <title>Game Picker</title>
-    <script src="../scripts/genre_dropdown.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/genre_dropdown.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
-<body> 
+<body class="background"> 
     <form action="/result.html" method="post">
-        <div>
-            <h1>Use this site to recommend a steam game!</h1>
-            <p>*please fill all fields</p>
+        <div class="p-3 mb-2 game-picker-gradient">
+            <h1 class="title">Steam Game Recommender</h1>
         </div>
-        <div>
-            <p> what genre of game do you want to play? select from any steam game tag [Indie, Multiplayer, Singleplayer, Action, Adeventure, RPG, etc]
-                <a href="https://store.steampowered.com/tag/browse/#global_492">check out popular tags</a>
-            </p>
-            <select name="genre" id="genre_dropdown"> </select>
+        <div class="text-box">
+            <div class="text-box-container">
+                <p> what genre of game do you want to play?</p>
+                <select name="genre" id="genre_dropdown"> </select>
+            </div >
+        
+            <div class="text-box-container">
+                <p> how many games do you want to scrape? (More will take longer, but can provide more accurate results) </p>
+                <select name="scrape_amount" required>
+                    <option value=50>50</option>
+                    <option value=100 selected>100</option>
+                    <option value=250>200</option>
+                    <option value=500>500</option>
+                    <option value=1000>1000</option>
+                </select>
+            </div>
+            <div class="text-box-container">
+                <p>minimum review score?</p>
+                <!-- <input type="text" name="review_score" required> -->
+                <select name="review_score" required>
+                    <option value="Overwhelmingly Negative">Overwhelmingly Negative</option>
+                    <option value="Very Negative">Very Negative</option>
+                    <option value="Negative">Negative</option>
+                    <option value="Mixed" selected>Mixed</option>
+                    <option value="Positive">Positive</option>
+                    <option value="Very Positive">Very Positive</option>
+                    <option value="Overwhelmingly Positive">Overwhelmingly Positive</option>
+                </select>
+            </div>
+            <div class="text-box-container">
+                <p>briefly describe the game your looking for (style of game, vibe, etc)</p>
+                <input type="text" name="game_description" required>
+            </div>
+            <div class="text-box-container">
+                <p>Number of results</p>
+                <select name="number_of_results" required>
+                    <option value=5>5</option>
+                    <option value=10>10</option>
+                    <option value=25>25</option>
+                    <option value=50>50</option>
+                    <option value=100>100</option>
+                </select>
+            </div>
+            <input type="submit" value="Submit" class="submit">
         </div>
-        <div>
-            <p> how many games do you want to scrape? (More will take longer, but can provide more accurate results) </p>
-            <select name="scrape_amount" required>
-                <option value=50>50</option>
-                <option value=100>100</option>
-                <option value=250>200</option>
-                <option value=500>500</option>
-                <option value=1000>1000</option>
-            </select>
-        </div>
-        <div>
-            <p>minimum review score?</p>
-            <!-- <input type="text" name="review_score" required> -->
-            <select name="review_score" required>
-                <option value="Overwhelmingly Negative">Overwhelmingly Negative</option>
-                <option value="Very Negative">Very Negative</option>
-                <option value="Negative">Negative</option>
-                <option value="Mixed">Mixed</option>
-                <option value="Positive">Positive</option>
-                <option value="Very Positive">Very Positive</option>
-                <option value="Overwhelmingly Positive">Overwhelmingly Positive</option>
-            </select>
-        </div>
-        <div>
-            <p>briefly describe the game your looking for (style of game, vibe, etc)</p>
-            <input type="text" name="game_description" required>
-        </div>
-        <div>
-            <p>Number of results</p>
-            <select name="number_of_results" required>
-                <option value=5>5</option>
-                <option value=10>10</option>
-                <option value=25>25</option>
-                <option value=50>50</option>
-                <option value=100>100</option>
-            </select>
-        </div>
-         <input type="submit" value="Submit">
     </form>
+        
 
 </body>
 </html>

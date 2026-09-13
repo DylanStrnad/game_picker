@@ -2,7 +2,7 @@ import json
 import multiprocessing
 from pathlib import Path
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from markupsafe import escape
 from scrapy.crawler import CrawlerProcess
 from sentence_transformers import SentenceTransformer
@@ -10,6 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .spiders.collect_steam_games import InfinitePageSpider
 
 app = Flask(__name__)
+app.json.sort_keys = False
 BASE_DIR = Path(__file__).resolve().parent
 
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
@@ -100,7 +101,6 @@ def home():
     print("home")
     if request.method == "POST":
         genre = escape(request.form.get("genre"))
-        genre = tag_data[0]["tags"][genre]
         scrape_amount = request.form.get("scrape_amount")
         review_score = request.form.get("review_score").strip()
         print("review score: ", review_score)
@@ -112,6 +112,12 @@ def home():
         return render_template("results.html", results=results)
     return render_template("index.html")
 
+#returns json to genre_dropdown.js
+@app.route("/games_tags.json", methods=["GET", "POST"])
+def getGameTags():
+    altered_tag_data = tag_data
+    return jsonify(altered_tag_data)
+    
 
 # if __name__ == "__main__":
 #     while True:

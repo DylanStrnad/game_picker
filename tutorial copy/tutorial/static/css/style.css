@@ -1,0 +1,26 @@
+.game-picker-gradient {
+  background-color: #171D25
+}
+
+.title{
+    color: #C5C3C0
+}
+
+.background{
+    background-image: linear-gradient(to right, #213D58, #0F1924);
+}
+
+.text-box{
+    color:white
+}
+
+.text-box-container{
+    margin-bottom: 2em;
+    text-align: center;
+    justify-content: center;
+}
+
+.submit{
+    display: block;
+    margin: 0 auto;
+}
